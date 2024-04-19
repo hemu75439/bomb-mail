@@ -3,10 +3,13 @@ const db = require("../models");
 const User = db.user;
 const Role = db.role;
 
+const log = console;
+
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 exports.signup = (req, res) => {
+  log.info('Registering new user...');
   const user = new User({
     username: req.body.username,
     email: req.body.email,
@@ -15,8 +18,8 @@ exports.signup = (req, res) => {
 
   user.save((err, user) => {
     if (err) {
-      res.status(500).send({ message: err });
-      return;
+      log.error(err);
+      return res.status(500);
     }
 
     if (req.body.roles) {
@@ -26,17 +29,18 @@ exports.signup = (req, res) => {
         },
         (err, roles) => {
           if (err) {
-            res.status(500).send({ message: err });
-            return;
+            log.error(err);
+            return res.status(500);
           }
 
           user.roles = roles.map(role => role._id);
           user.save(err => {
             if (err) {
-              res.status(500).send({ message: err });
-              return;
-            }
+              log.error(err);
+              return res.status(500);
 
+            }
+            log.success('User was registered successfully!');
             res.send({ message: "User was registered successfully!" });
           });
         }
@@ -44,17 +48,17 @@ exports.signup = (req, res) => {
     } else {
       Role.findOne({ name: "user" }, (err, role) => {
         if (err) {
-          res.status(500).send({ message: err });
-          return;
+          log.error(err);
+          return res.status(500);
         }
 
         user.roles = [role._id];
         user.save(err => {
           if (err) {
-            res.status(500).send({ message: err });
-            return;
+            log.error(err);
+            return res.status(500);
           }
-
+          log.success('User was registered successfully!');
           res.send({ message: "User was registered successfully!" });
         });
       });
@@ -63,6 +67,7 @@ exports.signup = (req, res) => {
 };
 
 exports.signin = (req, res) => {
+  log.info('Logging in user...');
   User.findOne({
     username: req.body.username
   })
@@ -70,11 +75,12 @@ exports.signin = (req, res) => {
     .populate("active_plan", "-__v")
     .exec((err, user) => {
       if (err) {
-        res.status(500).send({ message: err });
-        return;
+        log.error(err);
+        return res.status(500);
       }
 
       if (!user) {
+        log.info("User Not found.");
         return res.status(404).send({ message: "User Not found." });
       }
 
@@ -84,8 +90,8 @@ exports.signin = (req, res) => {
       );
 
       if (!passwordIsValid) {
+        log.info("Invalid Password!");
         return res.status(401).send({
-          accessToken: null,
           message: "Invalid Password!"
         });
       }
@@ -99,18 +105,54 @@ exports.signin = (req, res) => {
           expiresIn: 86400, // 24 hours
         }
       );
-        try {
-          res.status(200).send({
-            id: user._id,
-            username: user.username,
-            email: user.email,
-            roles: user.roles.map(e => "ROLE_" + e.name.toUpperCase()),
-            isPlanActive: !!(new Date() < new Date(user?.plan_valid_till || '')),
-            accessToken: token
-          });
-
-        }catch(e) {
-          console.log(e)
-        }
+        
+      try {
+        log.success('Login successful!')
+        return res.status(200).json({
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          roles: user.roles.map(e => "ROLE_" + e.name.toUpperCase()),
+          isPlanActive: !!(new Date() < new Date(user?.plan_valid_till || '')),
+          accessToken: token
+        });
+      }catch(e) {
+        log.error(e);
+        return res.status(500);
+      }
     });
 };
+
+exports.jwt = async (req, res) => {
+  try {
+    const token = req.params.token;
+    if (!token) {
+      log.error('No token provided');
+      return res.status(401).json({ message: 'No token provided' });
+    }
+  
+    const decodedToken = jwt.verify(token, config.secret);
+    log.info(JSON.stringify(decodedToken));
+  
+    const currentTime = Math.floor(Date.now() / 1000);
+  
+    if(decodedToken?.exp < currentTime) {
+      log.error('Token expired');
+      res.status(401).json({message: 'Token expired'});
+    }
+
+    const user = await User.findById(decodedToken?.id).populate("roles", "-__v").populate("active_plan", "-__v");
+
+    return res.status(200).json({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      roles: user.roles.map(e => "ROLE_" + e.name.toUpperCase()),
+      isPlanActive: !!(new Date() < new Date(user?.plan_valid_till || '')),
+      accessToken: token
+    });
+  } catch(e) {
+    log.error(e);
+    res.send(401).json({message: 'Invalid token'});
+  }
+}

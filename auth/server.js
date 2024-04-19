@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const morgan = require('morgan')
 const dbConfig = require("./app/config/db.config");
 
 const app = express();
@@ -34,6 +35,10 @@ db.mongoose
     process.exit();
   });
 
+
+// API calls logger
+app.use(morgan('tiny'));
+  
 // simple route
 app.get("/", (req, res) => {
   res.json({ message: "Application works!" });
