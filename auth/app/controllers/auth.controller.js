@@ -41,7 +41,7 @@ exports.signup = (req, res) => {
 
             }
             log.info('User was registered successfully!');
-            res.send({ message: "User was registered successfully!" });
+            res.json({ message: "User was registered successfully!" });
           });
         }
       );
@@ -59,7 +59,7 @@ exports.signup = (req, res) => {
             return res.status(500);
           }
           log.info('User was registered successfully!');
-          res.send({ message: "User was registered successfully!" });
+          res.json({ message: "User was registered successfully!" });
         });
       });
     }
@@ -144,7 +144,7 @@ exports.jwt = async (req, res) => {
     const user = await User.findById(decodedToken?.id).populate("roles", "-__v").populate("active_plan", "-__v");
 
     if(!user) {
-      return res.send(401).json({message: 'Invalid token'});
+      return res.status(401).json({message: 'Invalid token'});
     }
 
     return res.status(200).json({
@@ -156,6 +156,6 @@ exports.jwt = async (req, res) => {
     });
   } catch(e) {
     log.error(e);
-    res.send(401).json({message: 'Invalid token'});
+    res.status(401).json({message: 'Invalid token'});
   }
 }
