@@ -143,6 +143,10 @@ exports.jwt = async (req, res) => {
 
     const user = await User.findById(decodedToken?.id).populate("roles", "-__v").populate("active_plan", "-__v");
 
+    if(!user) {
+      return res.send(401).json({message: 'Invalid token'});
+    }
+
     return res.status(200).json({
       id: user._id,
       username: user.username,
