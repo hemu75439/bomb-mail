@@ -40,7 +40,7 @@ exports.signup = (req, res) => {
               return res.status(500);
 
             }
-            log.success('User was registered successfully!');
+            log.info('User was registered successfully!');
             res.send({ message: "User was registered successfully!" });
           });
         }
@@ -58,7 +58,7 @@ exports.signup = (req, res) => {
             log.error(err);
             return res.status(500);
           }
-          log.success('User was registered successfully!');
+          log.info('User was registered successfully!');
           res.send({ message: "User was registered successfully!" });
         });
       });
@@ -107,7 +107,7 @@ exports.signin = (req, res) => {
       );
         
       try {
-        log.success('Login successful!')
+        log.info('Login successful!')
         return res.status(200).json({
           id: user._id,
           username: user.username,
@@ -148,8 +148,7 @@ exports.jwt = async (req, res) => {
       username: user.username,
       email: user.email,
       roles: user.roles.map(e => "ROLE_" + e.name.toUpperCase()),
-      isPlanActive: !!(new Date() < new Date(user?.plan_valid_till || '')),
-      accessToken: token
+      isPlanActive: !!(new Date() < new Date(user?.plan_valid_till || ''))
     });
   } catch(e) {
     log.error(e);
