@@ -1,9 +1,9 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import path from 'node:path';
+import { app, BrowserWindow, ipcMain } from 'electron'
+import path from 'node:path'
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-try {
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -16,16 +16,16 @@ const __dirname = dirname(__filename);
 // │ │ └── index.js
 // │ ├─┬ renderer
 // │ │ └── index.html
-process.env.APP_ROOT = path.join(__dirname, '..');
+process.env.APP_ROOT = path.join(__dirname, '..')
 
-const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron');
-const RENDERER_DIST = path.join(process.env.APP_ROOT, '.output/public');
+export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
+export const RENDERER_DIST = path.join(process.env.APP_ROOT, '.output/public')
 
 process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? path.join(process.env.APP_ROOT, 'public')
-  : RENDERER_DIST;
+  : RENDERER_DIST
 
-let win: BrowserWindow | null;
+let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
@@ -36,22 +36,16 @@ function createWindow() {
 
   if (process.env.VITE_DEV_SERVER_URL) {
     win.loadURL(process.env.VITE_DEV_SERVER_URL).catch((err) => {
-        console.error('Failed to load URL:', err, process.env.VITE_DEV_SERVER_URL);
+        console.error('Failed to load URL:', err);
     });
     // win.webContents.openDevTools()
   } else {
     win.loadFile(path.join(process.env.VITE_PUBLIC!, 'index.html'))
   }
-
-  console.table({
-    'process.env.VITE_PUBLIC :: ': process.env.VITE_PUBLIC,
-    'process.env.VITE_DEV_SERVER_URL :: ': process.env.VITE_DEV_SERVER_URL,
-  })
 }
 
 function initIpc() {
   ipcMain.handle('app-start-time', () => (new Date).toLocaleString())
-  
 }
 
 app.on('window-all-closed', () => {
@@ -71,6 +65,3 @@ app.whenReady().then(() => {
   initIpc()
   createWindow()
 })
-} catch(e) {
-  console.log('error :: ', e)
-}
