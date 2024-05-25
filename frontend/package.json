@@ -1,0 +1,35 @@
+{
+  "name": "nuxt-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --no-fork",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "electron:build": "nuxi build --prerender && electron-builder"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-vue-next": "^0.372.0",
+    "nuxt": "^3.11.2",
+    "radix-vue": "^1.7.1",
+    "shadcn-nuxt": "^0.10.2",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.4.5",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.0",
+    "electron": "^30.0.6",
+    "electron-builder": "^24.13.3",
+    "nuxt-electron": "^0.7.0",
+    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  }
+}
