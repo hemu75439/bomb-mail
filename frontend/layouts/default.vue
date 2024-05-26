@@ -3,6 +3,5 @@
         <div class="flex-1">
           <slot />
         </div>
-        <FooterNav />
     </div>
   </template>

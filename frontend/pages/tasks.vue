@@ -1,7 +1,8 @@
 <template>
     <div class="h-full">
+      <Header title="Tasks" />
       <div class="p-4">
-        Login Page
+        Tasks Page
       </div>
     </div>
 </template>

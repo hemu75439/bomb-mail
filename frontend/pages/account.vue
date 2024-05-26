@@ -1,7 +1,8 @@
 <template>
     <div class="h-full">
+      <Header title="Account" />
       <div class="p-4">
-        Login Page
+        Account Page
       </div>
     </div>
 </template>
