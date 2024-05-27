@@ -1,11 +1,8 @@
-
-
-
 <template>
-    <div class="h-full">
-      <Header title="Welcome" />
-      <div clas>
-        Home Page
-      </div>
+  <div class="h-full">
+    <Header title="Welcome" />
+    <div class="p-4">
+      Home Page
     </div>
+  </div>
 </template>

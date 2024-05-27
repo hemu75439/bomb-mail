@@ -9,9 +9,9 @@
 <template>
     <Sheet>
         <SheetTrigger>
-            <img src="/img/bombmailer-logo-min.png" alt="Bomb-mailer" width="40">
+            <img src="../public/img/bombmailer-logo-min.png" alt="Bomb-mailer" width="40">
         </SheetTrigger>
-        <SheetContent side="left" class="w-[200px] sm:w-[200px] overflow-y-scroll">
+        <SheetContent side="left" class="w-[220px] overflow-y-scroll">
             <VisuallyHidden>
                 <SheetHeader>
                     <SheetTitle>Navigation</SheetTitle>
@@ -20,13 +20,13 @@
 
             <SheetDescription>
                 <div class="mt-5 flex justify-center">
-                    <img src="/img/bombmailer-logo.png" alt="Bomb-mailer" width="100" height="45">
+                    <img src="../public/img/bombmailer-logo.png" alt="Bomb-mailer" width="100" height="45">
                 </div>
                 <div class="my-5">
                     <template v-for="item in nav">
-                        <div class="py-3 px-4 flex-1 flex items-center justify-center cursor-pointer" @click="router.push(item.route)">
+                        <NuxtLink class="py-3 px-0 flex-1 flex items-center justify-center cursor-pointer" :to="item.route">
                             <div :class="
-                                'w-[100px] flex items-center justify-start gap-2 text-lg' + 
+                                'w-[120px] flex items-center justify-start gap-2 text-lg' + 
                                 (router.currentRoute.value.fullPath === item.route ? ' text-muted':'')
                             ">
                                 <span class="w-[25px] flex justify-center">
@@ -34,7 +34,7 @@
                                 </span> 
                                 {{ item.name }}
                             </div>
-                        </div>
+                        </NuxtLink>
                         <Separator v-if="item.separator" />
                     </template>
                 </div>

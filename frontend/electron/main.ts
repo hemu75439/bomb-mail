@@ -29,6 +29,7 @@ let win: BrowserWindow | null;
 
 function createWindow() {
   win = new BrowserWindow({
+    title: 'Bomb Mailer',
     minWidth: 800,
     minHeight: 500,
     webPreferences: {

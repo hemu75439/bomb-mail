@@ -16,8 +16,8 @@ export const nav: Navigation[] = [
         'separator': true,
     },
     {
-        'name': 'Tasks',
-        'route': '/tasks',
+        'name': 'Campaigns',
+        'route': '/campaigns',
         'content': ListTodo,
         'separator': true
     },

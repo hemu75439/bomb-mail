@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "bomb-mailer",
   "version": "1.0.0",
   "private": true,
   "main": "dist-electron/main.js",
@@ -12,6 +12,7 @@
     "electron:build": "nuxi build --prerender && electron-builder"
   },
   "dependencies": {
+    "@vueuse/core": "^10.10.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-vue-next": "^0.372.0",
