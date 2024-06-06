@@ -34,8 +34,9 @@ function createWindow() {
     minHeight: 500,
     webPreferences: {
       preload: path.join(MAIN_DIST, 'preload.js'),
-      nodeIntegration: true,
-      contextIsolation: false
+      // nodeIntegration: true,
+      // contextIsolation: false
+      nodeIntegrationInWorker: true
     },
   })
 

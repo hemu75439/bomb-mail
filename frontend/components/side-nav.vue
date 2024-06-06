@@ -3,13 +3,15 @@
     import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTrigger } from '@/components/ui/sheet';
     import { Separator } from '@/components/ui/separator';
     import { nav } from '@/lib/navigation';
+    import { Menu } from 'lucide-vue-next';
     const router = useRouter();
 </script>
 
 <template>
     <Sheet>
         <SheetTrigger>
-            <img src="../public/img/bombmailer-logo-min.png" alt="Bomb-mailer" width="40">
+            <!-- <img src="../public/img/bombmailer-logo-min.png" alt="Bomb-mailer" width="40"> -->
+            <Menu :size="32" />
         </SheetTrigger>
         <SheetContent side="left" class="w-[220px] overflow-y-scroll">
             <VisuallyHidden>
