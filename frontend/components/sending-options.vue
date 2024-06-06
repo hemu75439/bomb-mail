@@ -50,7 +50,7 @@ const recipients = ref(null);
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger as-child>
-                        <Info class="outline-none" size="20" />
+                        <Info class="outline-none" :size="20" />
                     </TooltipTrigger>
                     <TooltipContent>
                         <p>Sender email will be used from provided Google API credentials.</p>
@@ -63,7 +63,8 @@ const recipients = ref(null);
             <Label for="credentials">Google API Credential(s)</Label>
             <div class="flex items-center justify-start gap-3">
                 <Input class="rounded w-full max-w-[500px] text-start"
-                    type="file" id="credentials" v-model="campaign.credentials" />
+                    type="file" id="credentials" v-model="campaign.credentials"
+                    multiple accept=".json" />
             </div>
         </div>
 
@@ -82,7 +83,8 @@ const recipients = ref(null);
             <Label for="attachments">Attachment(s)</Label>
             <div class="flex items-center justify-start gap-3">
                 <Input class="rounded w-full max-w-[500px] text-start"
-                    type="file" id="attachments" v-model="campaign.attachments" />
+                    type="file" id="attachments" v-model="campaign.attachments"
+                    multiple accept=".jpg, .jpeg, .png, .pdf" />
             </div>
         </div>
 

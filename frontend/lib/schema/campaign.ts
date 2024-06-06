@@ -3,23 +3,23 @@ export interface SendingOptions {
     subject: string;
     credentials: any;
     recipients: string;
-    senderName?: string;
-    randomSenderName?: boolean;
+    sender_name?: string;
+    random_sender_name?: boolean;
     delay?: number;
-    delayAfter?: number;
+    delay_after?: number;
     attachments?: any;
-    randomHeader?: boolean;
+    random_header?: boolean;
 }
 
 export interface EmailContent {
     body?: string;
-    htmlCode?: string;
-    htmlCodeType?: 'img' | 'pdf' | 'img-pdf';
-    interactiveBody?: string;
+    html_code?: string;
+    html_code_type?: 'img' | 'pdf' | 'img-pdf';
+    interactive_body?: string;
 }
 
 export interface Campaign {
     name: string;
-    sendingOptions: SendingOptions;
-    emailContent: EmailContent;
+    sending_options: SendingOptions;
+    email_content: EmailContent;
 }

@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   # MongoDB service
@@ -11,21 +11,21 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
 
-  # bomb-mailer-auth app service
-  bomb-mailer-auth-app:
+  # bomb-mailer-api service
+  bomb-mailer-api:
     build:
-      context: ./auth
+      context: ./api
       dockerfile: Dockerfile
-    container_name: bomb-mailer-auth
+    container_name: bomb-mailer-api
     depends_on:
       - mongo
     ports:
-      - "${BOMB_MAILER_AUTH_APP_PORT}:3000"
+      - "${BOMB_MAILER_API_PORT}:3000"
     environment:
       MONGODB_URI: ${MONGODB_URI}
-      PORT: ${BOMB_MAILER_AUTH_APP_PORT}
+      PORT: ${BOMB_MAILER_API_PORT}
       AUTH_TOKEN_SECRET: ${AUTH_TOKEN_SECRET}
     links:
       - mongo
     volumes:
-      - ./auth:/usr/src/app
+      - ./api:/usr/src/app
