@@ -2,24 +2,110 @@
 import { ref } from 'vue';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Info } from 'lucide-vue-next';
-import { type CampaignStatus } from '@/lib/schema/campaign-status';
-
-const route = useRoute();
-console.log(route.params.id)
+import { type CampaignStatus } from '@/lib/schema/campaign';
+const { apiBase } = useRuntimeConfig().public;
 
 const campaign = ref({
-    name: 'Campaign 1'
+    name: 'Campaign 1',
+    status: 'incomplete',
+
+    subject: '',
+    credentials: [],
+    recipients: [],
+    sender_name: '',
+    random_sender_name: false,
+    delay: 0,
+    delay_after: 0,
+    attachments: [],
+    random_header: false,
+
+    body: '',
+    html_code: '',
+    html_code_type: '',
+    interactive_body: ''
 });
 
 const status = ref<CampaignStatus>('incomplete');
-const emailSent = ref<number>(70);
-const totalRecipients = ref<number>(200);
+const emailSent = ref<number>(0);
+const totalRecipients = ref<number>(0);
+const verifyEmails = ref<any>(null);
+const openDrawer = ref<boolean>(false);
 
-function updateStatus(newStatus: CampaignStatus) {
-    status.value = newStatus;
+let statusCheckTimeout = null;
+
+const route = useRoute();
+if(route.params.id && route.params.id !== 'new') {
+    const response: any = await $fetch(apiBase + 'campaign/' + route.params.id);
+    campaign.value = {...response.data};
+    if(campaign.value.status == 'in-progress') {
+        startCampaign()
+    }
 }
+
+async function updateCampaign(data) {
+    return await $fetch(apiBase + 'campaign/' + campaign.value._id, {
+            method: 'PATCH',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+}
+
+async function modifyCampaign() {
+    let response: any = {};
+    if(campaign?.value?._id) {
+        response = await updateCampaign({...campaign.value});
+    } else {
+        response = await $fetch(apiBase + 'campaign', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({...campaign.value})
+        });
+        campaign.value['_id'] = response?.data?._id;
+    }
+    
+    if(response?.data?.oAuthUrls?.length) {
+        verifyEmails.value = response?.data?.oAuthUrls;
+        openDrawer.value = true
+    } else {
+        startCampaign();
+    }
+}
+
+async function checkCampaignStatus() {
+    const response: any = await $fetch(apiBase + 'campaign/' + route.params.id + '/status');
+    console.log(response)
+    if(response.data.status == 'in-progress') {
+        emailSent.value = response.data.emailSent;
+        totalRecipients.value = response.data.totalRecipients;
+        statusCheckTimeout = setTimeout(() => checkCampaignStatus(), 5000);
+    }
+    if(response.data.status == 'failed') {
+        status.value = 'failed'
+    }
+    if(response.data.status == 'complete') {
+        status.value = 'complete'
+    }
+}
+
+function startCampaign() {
+    updateCampaign({status: 'in-progress'});
+    totalRecipients.value = campaign.value.recipients.length;
+    status.value = 'in-progress';
+    statusCheckTimeout = setTimeout(() => checkCampaignStatus(), 5000);
+}
+
+async function cancelCampaign() {
+    updateCampaign({status: 'incomplete'});
+    status.value = 'incomplete';
+}
+
 </script>
 
 
@@ -53,7 +139,7 @@ function updateStatus(newStatus: CampaignStatus) {
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger as-child>
-                                                <Info class="outline-none" size="20" />
+                                                <Info class="outline-none" :size="20" />
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p>Information needed to send email such as Recipients and Credentials.</p>
@@ -63,7 +149,7 @@ function updateStatus(newStatus: CampaignStatus) {
                                 </span>
                             </AccordionTrigger>
                             <AccordionContent>
-                                <SendingOptions />
+                                <SendingOptions :sending-options="campaign" />
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
@@ -77,7 +163,7 @@ function updateStatus(newStatus: CampaignStatus) {
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger as-child>
-                                                <Info class="outline-none" size="20" />
+                                                <Info class="outline-none" :size="20" />
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p>Contents that will be sent in the email.</p>
@@ -87,7 +173,7 @@ function updateStatus(newStatus: CampaignStatus) {
                                 </span>
                             </AccordionTrigger>
                             <AccordionContent>
-                                <EmailContent />
+                                <EmailContent :email-content="campaign" />
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
@@ -96,9 +182,28 @@ function updateStatus(newStatus: CampaignStatus) {
                 <div class="flex items-center justify-between px-4 py-2 border-t">
                     <CampaignStatus :status="status" :emailSent="emailSent" :totalRecipients="totalRecipients" />
                     
-                    <CampaignButton v-model="status" @update-status="updateStatus" />
+                    <CampaignButton v-model="status" @update-campaign="modifyCampaign"
+                        @cancel-campaign="cancelCampaign" />
                 </div>
             </Card>
+
+            <Drawer :open="openDrawer">
+                <DrawerContent>
+                    <DrawerHeader>
+                        <DrawerDescription class="text-center">Verify these emails to start Campaign</DrawerDescription>
+                    </DrawerHeader>
+                    <div class="flex justify-center">
+                        <EmailVerification :verify-emails="verifyEmails" />
+                    </div>
+                    <DrawerFooter class="items-center">
+                        <Button variant="outline" class="rounded px-5" size="lg" 
+                            @click="() => {
+                                startCampaign();
+                                openDrawer = false;
+                            }">Done</Button>
+                    </DrawerFooter>
+                </DrawerContent>
+            </Drawer>
         </div>
     </div>
 </template>

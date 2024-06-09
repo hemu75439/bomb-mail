@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type CampaignStatus } from '@/lib/schema/campaign-status';
+import { type CampaignStatus } from '@/lib/schema/campaign';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { Info, CircleX, CircleCheck } from 'lucide-vue-next';
@@ -14,7 +14,7 @@ defineProps<{
 <template>
     <div class="flex items-center">
         <div v-if="status == 'complete'" class="flex items-center">
-            <CircleCheck class="me-2" /> Complete
+            <CircleCheck class="me-2" /> Completed
         </div>
         <div v-if="status == 'in-progress'" class="flex items-center">
             <Spinner class="me-2" /> In progress
@@ -29,6 +29,11 @@ defineProps<{
         <Separator v-if="status != 'incomplete'" orientation="vertical" class="mx-5 h-[20px]" />
         <div v-if="status != 'incomplete'">
             {{ `${emailSent} / ${totalRecipients} sent` }}
+        </div>
+
+        <Separator v-if="status == 'failed'" orientation="vertical" class="mx-5 h-[20px]" />
+        <div v-if="status == 'failed'">
+            Check details and restart
         </div>
     </div>
 </template>

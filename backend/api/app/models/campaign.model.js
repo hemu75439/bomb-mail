@@ -12,6 +12,13 @@ const Recipient = new mongoose.Schema({
 
 const Credential = new mongoose.Schema({
     email: String,
+    type: {
+      type: String,
+      enum: ['oauth', 'app-password']
+    },
+
+    // Gmail app password
+    app_password: String,
     
     // Google Client Secret from setup GMAIL API
     client_id: String,
@@ -37,6 +44,11 @@ const Campaign = mongoose.model(
   "Campaign",
   new mongoose.Schema({
     name: String,
+    status: {
+      type: String,
+      enum: ['complete', 'in-progress', 'failed', 'incomplete'],
+      default: 'incomplete'
+    },
 
     // Sending Options
     subject: String,
@@ -54,8 +66,7 @@ const Campaign = mongoose.model(
     html_code: String,
     html_code_type: {
         type: String,
-        enum: ['img', 'pdf', 'img-pdf'],
-        default: 'img-pdf'
+        enum: ['img', 'pdf', 'img-pdf', '']
     },
     interactive_body: String,
   }, {timestamps: true})

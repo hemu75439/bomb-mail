@@ -35,4 +35,10 @@ export default defineNuxtConfig({
   //   renderer: {},
   // },
   ssr: false, // #43
+  runtimeConfig: {
+    apiSecret: '',
+    public: {
+      apiBase: 'http://localhost:4000/api/',
+    }
+  },
 })

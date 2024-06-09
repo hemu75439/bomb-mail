@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Eye, Plus } from 'lucide-vue-next';
+const { apiBase } = useRuntimeConfig().public;
 
 const statusColorCode = {
   'complete': 'green',
@@ -15,40 +16,30 @@ const statusColorCode = {
   'incomplete': 'orange'
 }
 
-const taskList = ref(
-  [
-    {
-      id: 1,
-      name: "Task 1",
-      status: "in-progress",
-      created: "2024-05-26T17:46:59.833Z"
-    },
-    {
-      id: 2,
-      name: "Task 2",
-      status: "failed",
-      created: "2024-05-26T17:46:59.833Z"
-    },
-    {
-      id: 3,
-      name: "Task 3",
-      status: "complete",
-      created: "2024-05-26T17:46:59.833Z"
-    },
-    {
-      id: 4,
-      name: "Task 4",
-      status: "incomplete",
-      created: "2024-05-26T17:46:59.833Z"
-    },
-    {
-      id: 5,
-      name: "Task 5",
-      status: "in-progress",
-      created: "2024-05-26T17:46:59.833Z"
-    },
-  ]
-)
+const campaigns = ref([]);
+const totalCampaigns = ref(0);
+const currentPage = ref(1);
+const limit = ref(10);
+
+
+
+async function getCampaignsList() {
+  try {
+    const response: any = await $fetch(apiBase + `campaign/list?limit=${limit.value}&page=${currentPage.value}`);
+    campaigns.value = response.data.campaigns;
+    totalCampaigns.value = response.data.totalCampaigns;
+    currentPage.value = response.data.currentPage;
+  } catch(e) {
+    console.log('Error in getting campaigns list')
+  }
+}
+
+function pageChanged(page) {
+  currentPage.value = page;
+  getCampaignsList();
+}
+
+getCampaignsList();
 </script>
 
 <template>
@@ -67,9 +58,9 @@ const taskList = ref(
               </span>
             </div>
 
-            <NuxtLink to="/campaign/1">
+            <NuxtLink to="/campaign/new">
               <Button class="rounded">
-                  <Plus size="20" />
+                  <Plus :size="20" />
                   <span class="text-lg ms-2">New Campaign</span>
               </Button>
             </NuxtLink>
@@ -86,38 +77,42 @@ const taskList = ref(
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableEmpty v-if="!taskList?.length">
+              <TableEmpty v-if="!campaigns?.length">
                 Let's start your email journey, click here
-                <Button class="ms-2 rounded">
-                  <Plus size="20" />
-                  <span class="text-lg ms-2">New Campaign</span>
-              </Button>
+                <NuxtLink to="/campaign/new">
+                  <Button class="ms-2 rounded">
+                      <Plus :size="20" />
+                      <span class="text-lg ms-2">New Campaign</span>
+                  </Button>
+                </NuxtLink>
               </TableEmpty>
-              <template v-for="task in taskList">
+              <template v-for="campaign in campaigns">
                 <TableRow>
                   <TableCell class="w-2/6 cursor-default">
-                    {{ task.name }}
+                    {{ campaign.name }}
                   </TableCell>
 
                   <TableCell>
-                    <Badge :style="`background-color: ${statusColorCode[task.status]};`"
+                    <Badge :style="`background-color: ${statusColorCode[campaign.status]};`"
                       class="text-white cursor-default">
-                      {{ task.status }}
+                      {{ campaign.status }}
                     </Badge>
                   </TableCell>
 
                   <TableCell class="cursor-default">
-                    {{ new Date(task.created).toLocaleString() }}
+                    {{ new Date(campaign.createdAt).toLocaleString() }}
                   </TableCell>
 
                   <TableCell>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger as-child>
-                          <Eye class="ms-2 cursor-pointer outline-none" @click="console.log(task.id)" />
+                          <NuxtLink :to="'/campaign/' + campaign._id">
+                            <Eye class="ms-2 cursor-pointer outline-none" />
+                          </NuxtLink>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>View the details of this task</p>
+                          <p>View the details of this campaign</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -131,7 +126,9 @@ const taskList = ref(
 
         <CardFooter class="p-3 pt-0">
 
-          <Pagination v-slot="{ page }" :total="100" :sibling-count="1" show-edges :default-page="1" class="mx-auto">
+          <Pagination v-slot="{ page }" :total="totalCampaigns" :itemsPerPage="limit" 
+            :sibling-count="1" show-edges :default-page="1" class="mx-auto"
+              @update:page="pageChanged">
             <PaginationList v-slot="{ items }" class="flex items-center gap-1">
               <PaginationFirst class="rounded" />
               <PaginationPrev class="rounded" />

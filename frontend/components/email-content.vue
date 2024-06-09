@@ -6,12 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Info } from 'lucide-vue-next';
 
-const campaign = ref({
-    body: '',
-    htmlCode: '',
-    htmlCodeType: 'img-pdf',
-    interactiveBody: ''
-});
+defineProps<{ emailContent }>();
 
 const htmlCodeTypes = ['img', 'pdf', 'img-pdf'];
 
@@ -27,7 +22,7 @@ const interactiveBody = ref(null);
             <Label for="recipients">Body</Label>
             <div class="flex items-start justify-start gap-3">
                 <Textarea id="recipients" placeholder="" class="rounded w-full max-w-[500px] h-[200px]"
-                    v-model="campaign.body" />
+                    v-model="emailContent.body" />
 
                 <Button variant="outline" class="rounded" @click="body.click()">Import</Button>
             </div>
@@ -38,15 +33,15 @@ const interactiveBody = ref(null);
             <Label for="recipients">HTML Code</Label>
             <div class="flex items-start justify-start gap-3">
                 <Textarea id="recipients" placeholder="" class="rounded w-full max-w-[500px] h-[200px]"
-                    v-model="campaign.htmlCode" />
+                    v-model="emailContent.html_code" />
 
                 <div>
                     <Button variant="outline" class="rounded mb-3" @click="htmlCode.click()">
                         Import
                     </Button>
 
-                    <Select v-model="campaign.htmlCodeType">
-                        <SelectTrigger class="w-[120px] rounded outline-none">
+                    <Select v-model="emailContent.html_code_type">
+                        <SelectTrigger class="w-[150px] rounded outline-none">
                             <SelectValue placeholder="HTML code type" />
                         </SelectTrigger>
                         <SelectContent class="rounded outline-none">
@@ -68,7 +63,7 @@ const interactiveBody = ref(null);
             <Label for="recipients">Interactive Body</Label>
             <div class="flex items-start justify-start gap-3">
                 <Textarea id="recipients" placeholder="" class="rounded w-full max-w-[500px] h-[200px]"
-                    v-model="campaign.interactiveBody" />
+                    v-model="emailContent.interactive_body" />
 
                 <Button variant="outline" class="rounded" @click="interactiveBody.click()">Import</Button>
             </div>

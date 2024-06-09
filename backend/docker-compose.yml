@@ -23,9 +23,23 @@ services:
       - "${BOMB_MAILER_API_PORT}:3000"
     environment:
       MONGODB_URI: ${MONGODB_URI}
-      PORT: ${BOMB_MAILER_API_PORT}
+      PORT: 3000
       AUTH_TOKEN_SECRET: ${AUTH_TOKEN_SECRET}
     links:
       - mongo
     volumes:
       - ./api:/usr/src/app
+
+  # Cron job service
+  bomb-mailer-cron:
+    build: 
+      context: ./cron
+      dockerfile: Dockerfile
+    container_name: bomb-mailer-cron
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+    links:
+      - mongo

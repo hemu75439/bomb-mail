@@ -11,9 +11,9 @@ module.exports = function(app) {
   });
 
   app.post("/api/campaign", controller.createCampaign);
-  app.patch("/api/campaign", controller.updateCampaign);
+  app.patch("/api/campaign/:id", controller.updateCampaign);
 
+  app.get("/api/campaign/list", controller.getCampaignList);
   app.get("/api/campaign/:id/status", controller.getCampaignStatus);
   app.get("/api/campaign/:id", controller.getCampaign);
-  app.get("/api/campaign", controller.getCampaignList);
 };
