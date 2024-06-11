@@ -89,7 +89,9 @@ getCampaignsList();
               <template v-for="campaign in campaigns">
                 <TableRow>
                   <TableCell class="w-2/6 cursor-default">
-                    {{ campaign.name }}
+                    <NuxtLink :to="'/campaign/' + campaign._id">
+                      {{ campaign.name }}
+                    </NuxtLink>
                   </TableCell>
 
                   <TableCell>

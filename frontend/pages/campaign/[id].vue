@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Info } from 'lucide-vue-next';
 import { type CampaignStatus } from '@/lib/schema/campaign';
 const { apiBase } = useRuntimeConfig().public;
+const router = useRouter();
 
 const campaign = ref({
-    name: 'Campaign 1',
+    name: 'New Campaign',
     status: 'incomplete',
 
     subject: '',
@@ -37,12 +38,21 @@ const openDrawer = ref<boolean>(false);
 let statusCheckTimeout = null;
 
 const route = useRoute();
-if(route.params.id && route.params.id !== 'new') {
+if(route?.params?.id !== 'new') {
     const response: any = await $fetch(apiBase + 'campaign/' + route.params.id);
     campaign.value = {...response.data};
     if(campaign.value.status == 'in-progress') {
         startCampaign()
     }
+} else {
+    const response = await $fetch(apiBase + 'campaign', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({...campaign.value})
+        });
+    router.push(response?.data?.id)
 }
 
 async function updateCampaign(data) {
@@ -56,20 +66,8 @@ async function updateCampaign(data) {
 }
 
 async function modifyCampaign() {
-    let response: any = {};
-    if(campaign?.value?._id) {
-        response = await updateCampaign({...campaign.value});
-    } else {
-        response = await $fetch(apiBase + 'campaign', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify({...campaign.value})
-        });
-        campaign.value['_id'] = response?.data?._id;
-    }
-    
+    const response = await updateCampaign({...campaign.value});
+
     if(response?.data?.oAuthUrls?.length) {
         verifyEmails.value = response?.data?.oAuthUrls;
         openDrawer.value = true
@@ -86,12 +84,7 @@ async function checkCampaignStatus() {
         totalRecipients.value = response.data.totalRecipients;
         statusCheckTimeout = setTimeout(() => checkCampaignStatus(), 5000);
     }
-    if(response.data.status == 'failed') {
-        status.value = 'failed'
-    }
-    if(response.data.status == 'complete') {
-        status.value = 'complete'
-    }
+    status.value = response.data.status;
 }
 
 function startCampaign() {
@@ -111,7 +104,7 @@ async function cancelCampaign() {
 
 <template>
     <div class="h-full flex flex-col">
-        <Header :title="campaign.name" />
+        <Header :title="campaign.name" :back-btn="true" />
         <div class="grow p-4">
             <Card class="h-full rounded flex flex-col">
                 <div class="flex items-center justify-start gap-3 p-4">

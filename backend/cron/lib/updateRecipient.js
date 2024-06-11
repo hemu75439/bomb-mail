@@ -17,7 +17,7 @@ module.exports = async (campaignId, recipientEmail, updateData) => {
         );
 
         if (campaign) {
-            console.log('Recipient updated successfully:', campaign);
+            console.log('Recipient updated successfully');
         } else {
             console.log('Recipient not found');
         }

@@ -32,8 +32,8 @@ cron.schedule('5 * * * * *', async () => {
     if(campaign) {
         try {
             console.log('Campaign found sending emails...');
-            await sendEmails(campaign);
-            updateCampaign(campaign._id, {status: 'complete'});
+            const allEmailSent = await sendEmails(campaign);
+            updateCampaign(campaign._id, {status: allEmailSent ? 'complete': 'failed'});
         } catch(e) {
             console.log('Error in sending emails :: ', e);
             updateCampaign(campaign._id, {status: 'failed'});

@@ -8,7 +8,7 @@ module.exports = async (campaignId, updateData) => {
         );
 
         if (campaign) {
-            console.log('Campaign updated successfully:', campaign);
+            console.log('Campaign updated successfully:', campaign._id);
         } else {
             console.log('Campaign not found');
         }

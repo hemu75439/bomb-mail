@@ -14,6 +14,7 @@ module.exports = function(app) {
   app.patch("/api/campaign/:id", controller.updateCampaign);
 
   app.get("/api/campaign/list", controller.getCampaignList);
+  app.get("/api/campaign/:id/google-auth/:email", controller.googleAuth);
   app.get("/api/campaign/:id/status", controller.getCampaignStatus);
   app.get("/api/campaign/:id", controller.getCampaign);
 };

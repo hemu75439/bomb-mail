@@ -1,12 +1,12 @@
 const db = require("../models");
-const google = require('../lib/google-oauth');
+const googleAuth = require('../lib/google-oauth');
 const Campaign = db.campaign;
-
+const { google } = require('googleapis');
 
 exports.createCampaign = async (req, res) => {
     const campaign = await Campaign.create(req.body);
 
-    const oAuthUrls = google.getOAuthUrls(campaign.credentials);
+    const oAuthUrls = googleAuth.getOAuthUrls(campaign.credentials);
 
     res.status(200).send({
         message: "Campaign Created!",
@@ -20,7 +20,7 @@ exports.updateCampaign = async (req, res) => {
     console.log(campaign, req.body)
     let data = { id: campaign._id };
     if(req.body.credentials) {
-      data['oAuthUrls'] = google.getOAuthUrls(campaign.credentials);
+      data['oAuthUrls'] = googleAuth.getOAuthUrls(campaign.credentials);
     }
 
     res.status(200).send({
@@ -71,3 +71,43 @@ exports.getCampaignList = async (req, res) => {
     }
   });
 };
+
+exports.googleAuth = async (req, res) => {
+
+  console.log(req.params, req.query)
+  const campaign = await Campaign.findById(req.params.id).lean();
+  const cred = campaign.credentials.find(e => e.email == req.params.email);
+  console.log('cred :: ', cred)
+
+  const oAuth2Client = new google.auth.OAuth2(
+    cred.client_id,
+    cred.client_secret,
+    cred.redirect_uris
+  );
+
+  oAuth2Client.getToken(req.query.code, async (err, token) => {
+    if (err) return console.error('Error retrieving access token:', err);
+    
+    console.log('\n\nToken :: ', token, '\n\n', {...cred, ...token});
+    try {
+      const campaign = await Campaign.findOneAndUpdate(
+        { 
+          _id: req.params.id, 
+          'credentials.email': req.params.email
+        },
+        { 
+            $set: { 
+                'credentials.$': {...cred, ...token}
+            } 
+        },
+        { new: true }  // Return the updated document
+      );
+      console.log('Updated cred :: ', campaign.credentials);
+
+    }catch(e) {
+      console.log('Error :: ', e);
+    }
+  });
+
+  return res.json({message: 'Success'});
+}

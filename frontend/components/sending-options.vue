@@ -4,17 +4,19 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-vue-next';
+import { Info, Copy } from 'lucide-vue-next';
 import * as XLSX from 'xlsx';
+const { apiBase } = useRuntimeConfig().public;
 
 const props = defineProps<{ sendingOptions }>();
+const redirectURI =  `${apiBase}campaign/${props.sendingOptions._id}/google-auth/:email`;
 
 const subject = ref(null);
 const recipients = ref(null);
 const appPassword = ref(false);
 
 function updateRecipients(val) {
-    props.sendingOptions.recipients = val.split(',');
+    props.sendingOptions.recipients = val.split(',').map((email: string) => { return {email} });
 }
 
 async function updateCreds(e: Event) {
@@ -69,6 +71,10 @@ async function updateCreds(e: Event) {
 function updateAttachments(val) {
 
 }
+
+async function copyToClipboard(text: string) {
+    await navigator.clipboard.writeText(text);
+}
 </script>
 
 <template>
@@ -110,7 +116,35 @@ function updateAttachments(val) {
         </div>
 
         <div class="flex flex-col gap-2 p-4">
-            <Label for="credentials">Google API Credential(s)</Label>
+            <div class="flex items-center justify-start gap-3 p-4">
+                <Label for="credentials">Google API Credential(s)</Label>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger as-child>
+                            <Info class="outline-none" :size="20" />
+                        </TooltipTrigger>
+                        <TooltipContent class="rounded">
+                            <p>
+                                Use this url as "Redirect URI" for JSON API key. <br>
+                                Replace ':email' with your gmail account email. eg: abc@gmail.com
+                            </p><br>
+                            <p class="bg-slate-600 px-2 py-1 rounded flex items-center gap-2" 
+                                @click="copyToClipboard(redirectURI);">
+                                <input type="text" class="focus:bg-green-600 text-blue-600 focus:text-slate-200 flex-1 w-[550px]" 
+                                    :value="redirectURI" id="redirect-uri" readonly>
+                                <label for="redirect-uri">
+                                    <Copy :size="20" />
+                                </label>
+                            </p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
+            <template v-for="cred in sendingOptions.credentials">
+                <p>{{ cred.email }}</p>
+            </template>
             <div class="flex items-center justify-start gap-3">
                 <Input class="rounded w-full max-w-[500px] text-start"
                     type="file" id="credentials" @change="updateCreds"
@@ -135,6 +169,7 @@ function updateAttachments(val) {
             <Label for="recipients">Recipient(s)</Label>
             <div class="flex items-start justify-start gap-3">
                 <Textarea id="recipients" placeholder="eg: abcd@gmail.com, xyz@gmail.com" 
+                    :value="sendingOptions.recipients.map(e => e.email).join(', ')"
                     class="rounded w-full max-w-[500px] h-[300px]" @update:modelValue="updateRecipients" />
 
                 <Button variant="outline" class="rounded" @click="recipients.click()">Import</Button>
