@@ -76,8 +76,11 @@ exports.googleAuth = async (req, res) => {
 
   console.log(req.params, req.query)
   const campaign = await Campaign.findById(req.params.id).lean();
-  const cred = campaign.credentials.find(e => e.email == req.params.email);
-  console.log('cred :: ', cred)
+  const cred = campaign?.credentials.find(e => e.email == req.params.email);
+  console.log('Cred :: ', cred)
+  if(!cred) {
+    return res.json({message: 'Auth Failed'});
+  }
 
   const oAuth2Client = new google.auth.OAuth2(
     cred.client_id,

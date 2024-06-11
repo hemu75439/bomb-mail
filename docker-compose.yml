@@ -43,3 +43,14 @@ services:
       MONGODB_URI: ${MONGODB_URI}
     links:
       - mongo
+
+  bomb-mailer-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: bomb-mailer-app
+    ports:
+      - "3000:3000"
+    environment:
+      - HOST=0.0.0.0
+    command: npm run start

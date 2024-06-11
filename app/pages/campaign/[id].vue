@@ -29,7 +29,7 @@ const campaign = ref({
     interactive_body: ''
 });
 
-const status = ref<CampaignStatus>('incomplete');
+const status = ref<string>('incomplete');
 const emailSent = ref<number>(0);
 const totalRecipients = ref<number>(0);
 const verifyEmails = ref<any>(null);
@@ -41,6 +41,7 @@ const route = useRoute();
 if(route?.params?.id !== 'new') {
     const response: any = await $fetch(apiBase + 'campaign/' + route.params.id);
     campaign.value = {...response.data};
+    status.value = campaign.value.status;
     if(campaign.value.status == 'in-progress') {
         startCampaign()
     }

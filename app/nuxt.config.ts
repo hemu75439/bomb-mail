@@ -41,4 +41,8 @@ export default defineNuxtConfig({
       apiBase: 'http://localhost:4000/api/',
     }
   },
+  server: {
+    host: '0.0.0.0', // Default: localhost
+    port: 3000       // Default: 3000
+  },
 })

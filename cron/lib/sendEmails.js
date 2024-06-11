@@ -2,7 +2,7 @@ const createAttachmentFromHTML = require("./createAttachmentFromHTML");
 const createTransport = require("./createTransport");
 const updateRecipient = require("./updateRecipient");
 
-module.exports = (campaign) => new Promise((resolve, r) => {
+module.exports = (campaign) => new Promise(async (resolve, r) => {
   try {
 
     // Setup email data
@@ -43,26 +43,12 @@ module.exports = (campaign) => new Promise((resolve, r) => {
   
       // Loop over all recipients until done or out of creds
       for (let i = 0; i < recipients?.length; i++) {
-        setTimeout(async () => {
+        // setTimeout(async () => {
           const r = recipients[i];
           if (!r.sent) {
             try {
               message["to"] = r.email;
               // Send email
-              // transporter.sendMail(message, (error, info) => {
-              //   if (error) {
-              //     throw error;
-              //   }
-    
-              //   // Update status sent, last_sent
-              //   updateRecipient(campaign._id, r.email, {
-              //     email: r.email,
-              //     sent: true,
-              //     last_sent: new Date(),
-              //   });
-              //   console.log('Email sent to recipient :: ', i);
-                
-              // });
               await transporter.sendMail(message);
               await updateRecipient(campaign._id, r.email, {
                 email: r.email,
@@ -85,7 +71,7 @@ module.exports = (campaign) => new Promise((resolve, r) => {
           if(i == recipients?.length-1) {
             resolve(!failedEmails?.length);
           }
-        }, 1000);
+        // }, 1000);
       }
       // console.log('failedEmails :: ', failedEmails)
     } else {

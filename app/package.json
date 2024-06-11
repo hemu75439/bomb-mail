@@ -2,8 +2,8 @@
   "name": "bomb-mailer",
   "version": "1.0.0",
   "private": true,
-  "main": "dist-electron/main.js",
   "scripts": {
+    "start": "node .output/server/index.mjs",
     "build": "nuxt build",
     "dev": "nuxt dev --no-fork",
     "generate": "nuxt generate",
