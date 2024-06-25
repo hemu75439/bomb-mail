@@ -67,5 +67,5 @@ sudo nginx -s reload
 
 
 echo "Starting app"
-cd ./workspace/bomb-mail
+cd ./workspace/bomb-mail/
 sudo docker compose up --build -d
