@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:latest AS builder
+FROM node:20-slim AS builder
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve the application
-FROM node:current-alpine3.20
+FROM node:20-slim
 
 # Set the working directory
 WORKDIR /usr/src/app
