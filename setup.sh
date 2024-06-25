@@ -65,6 +65,14 @@ sudo mv temp_file "$nginx_path"
 sudo nginx -s reload
 
 
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap  /swapfile
+sudo swapon /swapfile
+sudo swapon  --show
+sudo free -h
+
+
 echo "Starting app"
 cd ./workspace/bomb-mail/
 sudo docker compose up --build -d
