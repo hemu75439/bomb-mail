@@ -5,10 +5,10 @@ FROM node:18-slim AS builder
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY package*.json .
 
 # Install dependencies
-RUN npm install
+RUN npm install --no-audit
 
 # Copy the rest of the application code
 COPY . .
@@ -23,7 +23,7 @@ FROM node:18-slim
 WORKDIR /usr/src/app
 
 # Copy only the necessary files from the build stage
-COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/package*.json .
 # COPY --from=builder /usr/src/app/.nuxt ./.nuxt
 # COPY --from=builder /usr/src/app/static ./static
 # COPY --from=builder /usr/src/app/nuxt.config.js ./

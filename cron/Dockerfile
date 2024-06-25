@@ -5,10 +5,10 @@ FROM node:18-slim
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY package*.json .
 
 # Install dependencies
-RUN npm install
+RUN npm install --no-audit
 
 # Copy the application code
 COPY . .

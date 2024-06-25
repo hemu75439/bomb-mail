@@ -2,7 +2,7 @@ dns=$1
 append_line_no_nginx=60
 nginx_path=/etc/nginx/nginx.conf
 server_config="
-     server_names_hash_bucket_size 128;
+    server_names_hash_bucket_size 128;
 
 	server {
 		listen 80;
@@ -28,7 +28,7 @@ server_config="
 "
 
 echo "Changing base API in nuxt.config.ts"
-sudo sed -i "s/localhost:4000/$dns/g" "./app/nuxt.config.ts"
+sudo sed -i "s/localhost:4000/$dns/g" "./app/nuxt.config.ts" # fix this line
 
 echo "GOTO base dir"
 cd ../../

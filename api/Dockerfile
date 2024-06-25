@@ -5,11 +5,13 @@ FROM node:18-slim
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY package*.json .
 
 # Install dependencies
 RUN npm install -g nodemon
-RUN npm install
+
+ # fix this line
+RUN npm install --no-audit
 
 # Copy the rest of the application code
 COPY . .
