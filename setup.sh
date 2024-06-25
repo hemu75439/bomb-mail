@@ -27,12 +27,11 @@ server_config="
     }
 "
 
-echo "GOTO base dir"
-cd ~
-
 echo "Changing base API in nuxt.config.ts"
-sudo sed -i "s/localhost:4000/$dns/g" "./workspace/bomb-mail/app/nuxt.config.ts"
+sudo sed -i "s/localhost:4000/$dns/g" "./app/nuxt.config.ts"
 
+echo "GOTO base dir"
+cd ../../
 
 echo "Installing Docker and Docker Compose"
 sudo apt-get update
@@ -67,5 +66,5 @@ sudo nginx -s reload
 
 
 echo "Starting app"
-cd ~/workspace/bomb-mail/
+cd ./workspace/bomb-mail/
 sudo docker compose up --build -d
