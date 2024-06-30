@@ -14,6 +14,7 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
       html_code_type,
       attachments,
     } = campaign;
+
     let message = {
       subject,
       text: body,
@@ -26,11 +27,13 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
           })
         : [],
     };
-  
+
+
     if (html_code) {
       // Create attachment with html_code, html_code_type
-      const att = createAttachmentFromHTML(html_code, html_code_type);
-      message.attachments.push(att);
+      const path = await createAttachmentFromHTML(html_code, html_code_type);
+      message.attachments.push({ filename: 'invoice.pdf', path });
+      console.log('attachments attached... ', attachments);
     }
   
     const { credentials, recipients } = campaign;

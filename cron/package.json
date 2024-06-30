@@ -15,6 +15,7 @@
   "dependencies": {
     "mongoose": "^8.4.1",
     "node-cron": "^3.0.3",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "puppeteer-html-pdf": "^4.0.8"
   }
 }

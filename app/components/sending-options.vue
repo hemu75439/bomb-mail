@@ -16,7 +16,29 @@ const recipients = ref(null);
 const appPassword = ref(false);
 
 function updateRecipients(val) {
-    props.sendingOptions.recipients = val.split(',').map((email: string) => { return {email} });
+    props.sendingOptions.recipients = val.split(',').map((email: string) => { return {email: email.trim()} });
+}
+
+function importRecipients(e: Event) {
+    const files =  e?.target?.files;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e?.target?.result;
+        const workbook = XLSX.read(data, { type: 'buffer' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const content = XLSX.utils.sheet_to_json(worksheet);
+
+        // Extract the user_email column
+        const userEmails = content.map(row => row['user_email']).filter(email => email !== undefined);
+
+        updateRecipients(userEmails.join(','));
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+      }
+    };
+    reader.readAsArrayBuffer(files[0]);
 }
 
 async function updateCreds(e: Event) {
@@ -174,7 +196,7 @@ async function copyToClipboard(text: string) {
 
                 <Button variant="outline" class="rounded" @click="recipients.click()">Import</Button>
             </div>
-            <input class="invisible h-0 w-0" type="file" ref="recipients">
+            <input class="invisible h-0 w-0" type="file" ref="recipients" @change="importRecipients">
         </div>
 
         <div class="flex flex-col gap-2 p-4">

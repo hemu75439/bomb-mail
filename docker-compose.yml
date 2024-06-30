@@ -4,7 +4,7 @@ services:
   # MongoDB service
   mongo:
     image: mongo:latest
-    container_name: bomb-mailer-db
+    container_name: mongo-db
     ports:
       - "27017:27017"
     environment:
@@ -16,7 +16,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: bomb-mailer-api
+    container_name: api
     depends_on:
       - mongo
     ports:
@@ -35,7 +35,8 @@ services:
     build: 
       context: ./cron
       dockerfile: Dockerfile
-    container_name: bomb-mailer-cron
+    container_name: cron
+    platform: linux/amd64
     restart: always
     depends_on:
       - mongo
@@ -48,7 +49,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    container_name: bomb-mailer-app
+    container_name: app
     ports:
       - "3000:3000"
     environment:

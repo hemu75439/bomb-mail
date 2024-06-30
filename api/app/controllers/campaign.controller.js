@@ -106,11 +106,10 @@ exports.googleAuth = async (req, res) => {
         { new: true }  // Return the updated document
       );
       console.log('Updated cred :: ', campaign.credentials);
-
+      return res.json({message: 'Success'});
     }catch(e) {
       console.log('Error :: ', e);
+      return res.json({message: 'Failed'});
     }
   });
-
-  return res.json({message: 'Success'});
 }

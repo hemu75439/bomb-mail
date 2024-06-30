@@ -86,9 +86,8 @@ async function checkCampaignStatus() {
         statusCheckTimeout = setTimeout(() => checkCampaignStatus(), 5000);
     }
     if(response.data.status == 'complete') {
-        const sent = response.data?.recipients.filter(e => e.sent);
-        emailSent.value = sent?.length;
-        totalRecipients.value = response.data?.recipients?.length;
+        emailSent.value = response.data.emailSent;
+        totalRecipients.value = response.data.totalRecipients;
     }
     status.value = response.data.status;
 }
