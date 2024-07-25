@@ -7,6 +7,7 @@
 dist
 
 # Node dependencies
+*node_modules/
 cron/node_modules/
 api/node_modules/
 app/node_modules/
