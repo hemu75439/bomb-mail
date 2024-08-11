@@ -10,6 +10,32 @@ RUN apt-get update && apt-get install curl gnupg -y \
   && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
   && apt-get update \
   && apt-get install google-chrome-stable -y --no-install-recommends \
+  && apt-get update && apt-get install -y \
+    wget \
+    ca-certificates \
+    fonts-liberation \
+    libappindicator3-1 \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libxss1 \
+    libxtst6 \
+    libnss3 \
+    libgtk-3-0 \
+    libgbm1 \
+    libpangocairo-1.0-0 \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libatspi2.0-0 \
+    lsb-release \
+    xdg-utils \
+    xvfb \
+    --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
@@ -34,8 +60,7 @@ RUN pnpm install
 # Copy the application code
 COPY . .
 
-RUN npm install puppeteer
-
+# Install chrome
 RUN npx puppeteer browsers install chrome
 
 # Command to run the cron job
