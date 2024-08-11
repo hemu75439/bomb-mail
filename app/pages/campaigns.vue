@@ -102,7 +102,18 @@ getCampaignsList();
                   </TableCell>
 
                   <TableCell class="cursor-default">
-                    {{ new Date(campaign.createdAt).toLocaleString() }}
+                    {{ new Date(campaign.createdAt)
+                        .toLocaleString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        })
+                        .replace(' am', 'AM')
+                        .replace(' pm', 'PM')
+                    }}
                   </TableCell>
 
                   <TableCell>

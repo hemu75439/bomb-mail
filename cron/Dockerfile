@@ -34,6 +34,8 @@ RUN pnpm install
 # Copy the application code
 COPY . .
 
+RUN npm install puppeteer
+
 RUN npx puppeteer browsers install chrome
 
 # Command to run the cron job

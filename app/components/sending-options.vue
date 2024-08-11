@@ -4,12 +4,13 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Info, Copy } from 'lucide-vue-next';
+import { Info, Copy, TriangleAlert } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import * as XLSX from 'xlsx';
 const { apiBase } = useRuntimeConfig().public;
 
 const props = defineProps<{ sendingOptions }>();
-const redirectURI =  `${apiBase}campaign/${props.sendingOptions._id}/google-auth/:email`;
+const redirectURI =  `${apiBase}campaign/${props.sendingOptions._id}/google-auth/<email>`;
 
 const subject = ref(null);
 const recipients = ref(null);
@@ -96,6 +97,7 @@ function updateAttachments(val) {
 
 async function copyToClipboard(text: string) {
     await navigator.clipboard.writeText(text);
+    toast('URL copied!');
 }
 </script>
 
@@ -122,8 +124,10 @@ async function copyToClipboard(text: string) {
                 <Label for="randomSenderName">Use random Sender name(s)</Label>
             </div>
         </div>
+
+
         <div class="flex items-center justify-start gap-3 p-4">
-            <Label>Sender Email</Label>
+            <Label for="credentials">Google API Credential(s)</Label>
 
             <TooltipProvider>
                 <Tooltip>
@@ -131,37 +135,28 @@ async function copyToClipboard(text: string) {
                         <Info class="outline-none" :size="20" />
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Sender email will be used from provided Google API credentials.</p>
+                        <p>Sender email will be used from provided Google API credentials emails.</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
         </div>
 
-        <div class="flex flex-col gap-2 p-4">
-            <div class="flex items-center justify-start gap-3 p-4">
-                <Label for="credentials">Google API Credential(s)</Label>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <Info class="outline-none" :size="20" />
-                        </TooltipTrigger>
-                        <TooltipContent class="rounded">
-                            <p>
-                                Use this url as "Redirect URI" for JSON API key. <br>
-                                Replace ':email' with your gmail account email. eg: abc@gmail.com
-                            </p><br>
-                            <p class="bg-slate-600 px-2 py-1 rounded flex items-center gap-2" 
-                                @click="copyToClipboard(redirectURI);">
-                                <input type="text" class="focus:bg-green-600 text-blue-600 focus:text-slate-200 flex-1 w-[550px]" 
-                                    :value="redirectURI" id="redirect-uri" readonly>
-                                <label for="redirect-uri">
-                                    <Copy :size="20" />
-                                </label>
-                            </p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+        <div class="flex flex-col gap-2 px-4">
+            <div class="flex items-start gap-2">
+                <TriangleAlert class="outline-none inline-block text-yellow-300" :size="20" />
+                <div>
+                    <p>
+                        Use this url as "Redirect URI" for creating Google JSON API key. <br>
+                        Replace '&lt;email&gt;' with your gmail account email. eg: abc@gmail.com
+                    </p>
+                    <p class="my-2 rounded flex items-center gap-2 cursor-pointer" 
+                        @click="copyToClipboard(redirectURI);">
+                        <span type="text" class="bg-slate-600 focus:bg-green-600 focus:text-slate-200 px-2 rounded">
+                            {{ redirectURI }}
+                        </span>
+                        <Copy :size="20" class="cursor-pointer" />
+                    </p>
+                </div>
             </div>
 
             <template v-for="cred in sendingOptions.credentials">
@@ -187,7 +182,7 @@ async function copyToClipboard(text: string) {
             </div>
         </div>
 
-        <div class="flex flex-col gap-2 p-4">
+        <div class="mt-6 flex flex-col gap-2 p-4">
             <Label for="recipients">Recipient(s)</Label>
             <div class="flex items-start justify-start gap-3">
                 <Textarea id="recipients" placeholder="eg: abcd@gmail.com, xyz@gmail.com" 
@@ -199,7 +194,7 @@ async function copyToClipboard(text: string) {
             <input class="invisible h-0 w-0" type="file" ref="recipients" @change="importRecipients">
         </div>
 
-        <div class="flex flex-col gap-2 p-4">
+        <!-- <div class="flex flex-col gap-2 p-4">
             <Label for="attachments">Attachment(s)</Label>
             <div class="flex items-center justify-start gap-3">
                 <Input class="rounded w-full max-w-[500px] text-start"
@@ -218,7 +213,7 @@ async function copyToClipboard(text: string) {
                     v-model="sendingOptions.delay_after" />
                 number of emails.
             </div>
-        </div>
+        </div> -->
 
     </Card>
 </template>

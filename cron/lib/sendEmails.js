@@ -1,12 +1,15 @@
 const createAttachmentFromHTML = require("./createAttachmentFromHTML");
 const createTransport = require("./createTransport");
 const updateRecipient = require("./updateRecipient");
+const randomNameGen = require("./randomNameGenerator");
 
 module.exports = (campaign) => new Promise(async (resolve, r) => {
   try {
 
     // Setup email data
     const {
+      sender_name,
+      random_sender_name,
       subject,
       body,
       interactive_body,
@@ -31,8 +34,8 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
 
     if (html_code) {
       // Create attachment with html_code, html_code_type
-      const path = await createAttachmentFromHTML(html_code, html_code_type);
-      message.attachments.push({ filename: 'invoice.pdf', path });
+      const [filename, path] = await createAttachmentFromHTML(html_code, html_code_type);
+      message.attachments.push({ filename, path });
       console.log('attachments attached... ', attachments);
     }
   
@@ -51,6 +54,15 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
           if (!r.sent) {
             try {
               message["to"] = r.email;
+
+              if(!!sender_name) {
+                message["from"] = sender_name;
+              }
+
+              if(random_sender_name) {
+                message["from"] = randomNameGen();
+              }
+
               // Send email
               await transporter.sendMail(message);
               await updateRecipient(campaign._id, r.email, {

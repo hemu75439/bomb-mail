@@ -67,8 +67,7 @@ const Campaign = mongoose.model(
     html_code: String,
     html_code_type: {
         type: String,
-        enum: ['img', 'pdf', 'img-pdf'],
-        default: 'img-pdf'
+        enum: ['img', 'pdf', '']
     },
     interactive_body: String,
   }, {timestamps: true})

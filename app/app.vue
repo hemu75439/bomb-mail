@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { Toaster } from '@/components/ui/sonner'
+// import { onMounted } from 'vue'
 
   // onMounted(async () => {
   //   const time = await window?.ipcRenderer?.invoke('app-start-time')
@@ -18,4 +19,5 @@ import { onMounted } from 'vue'
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+  <Toaster position="top-right" />
 </template>

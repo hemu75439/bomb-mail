@@ -8,7 +8,7 @@ import { Info } from 'lucide-vue-next';
 
 defineProps<{ emailContent }>();
 
-const htmlCodeTypes = ['img', 'pdf', 'img-pdf'];
+const htmlCodeTypes = ['img', 'pdf'];
 
 const body = ref(null);
 const htmlCode = ref(null);
@@ -59,7 +59,7 @@ const interactiveBody = ref(null);
             <input class="invisible h-0 w-0" type="file" ref="recipients">
         </div>
 
-        <div class="flex flex-col gap-2 p-4">
+        <!-- <div class="flex flex-col gap-2 p-4">
             <Label for="recipients">Interactive Body</Label>
             <div class="flex items-start justify-start gap-3">
                 <Textarea id="recipients" placeholder="" class="rounded w-full max-w-[500px] h-[200px]"
@@ -68,7 +68,7 @@ const interactiveBody = ref(null);
                 <Button variant="outline" class="rounded" @click="interactiveBody.click()">Import</Button>
             </div>
             <input class="invisible h-0 w-0" type="file" ref="recipients">
-        </div>
+        </div> -->
 
     </Card>
 </template>
