@@ -21,25 +21,46 @@ function updateRecipients(val) {
 }
 
 function importRecipients(e: Event) {
-    const files =  e?.target?.files;
+    const file =  e?.target?.files[0];
     const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = e?.target?.result;
-        const workbook = XLSX.read(data, { type: 'buffer' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const content = XLSX.utils.sheet_to_json(worksheet);
 
-        // Extract the user_email column
-        const userEmails = content.map(row => row['user_email']).filter(email => email !== undefined);
+    // function can be improved !!
+    if(file && file.type === 'text/csv') {
+        reader.onload = (e) => {
+            const text = e?.target?.result;
+            const lines = text?.split('\n');
+            const emails = lines.map(line => {
+                const fields = line.split(',');
+                return fields[0].trim();
+            })
+            const userEmails = emails.filter(email => email !== undefined); 
+            updateRecipients(userEmails.join(','));
+        };
 
-        updateRecipients(userEmails.join(','));
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-      }
-    };
-    reader.readAsArrayBuffer(files[0]);
+        reader.onerror = (error) => {
+          console.error('Error reading file:', error);
+        };
+
+        reader.readAsText(file);
+    } else {
+        reader.onload = (e) => {
+        try {
+            const data = e?.target?.result;
+            const workbook = XLSX.read(data, { type: 'buffer' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const content = XLSX.utils.sheet_to_json(worksheet);
+
+            // Extract the user_email column
+            const userEmails = content.map(row => row['user_email']).filter(email => email !== undefined);
+
+            updateRecipients(userEmails.join(','));
+        } catch (error) {
+            console.error("Error parsing JSON:", error);
+        }
+        };
+        reader.readAsArrayBuffer(file); 
+    }
 }
 
 async function updateCreds(e: Event) {
