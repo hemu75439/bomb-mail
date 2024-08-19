@@ -20,5 +20,11 @@ module.exports = (cred) => {
         }
     }
     console.log('creds :: ', { service: 'gmail', auth });
-    return nodemailer.createTransport({ pool: true, service: 'gmail', auth });
+    return nodemailer.createTransport({ 
+        pool: true, 
+        maxConnections: 20,
+        maxMessages: Infinity,
+        service: 'gmail', 
+        auth 
+    });
 }

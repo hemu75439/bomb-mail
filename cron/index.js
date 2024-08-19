@@ -23,21 +23,32 @@ const mongoose = require('mongoose');
     }
 )()
 
+let campaignRunning = false;
 cron.schedule('5 * * * * *', async () => {
     console.log('Cron server activated :: ', new Date());
 
-    console.log('Getting campaign...');
-    const campaign = await getCampaign();
+    if(campaignRunning) {
+        console.log('Camapign already in-progress');
+    } else {
 
-    if(campaign) {
-        try {
-            console.log('Campaign found sending emails...');
-            const allEmailSent = await sendEmails(campaign);
-            updateCampaign(campaign._id, {status: allEmailSent ? 'complete': 'failed'});
-        } catch(e) {
-            console.log('Error in sending emails :: ', e);
-            updateCampaign(campaign._id, {status: 'failed'});
+        console.log('Getting campaign...');
+        const campaign = await getCampaign();
+    
+        if(campaign) {
+            try {
+                console.log('Campaign found sending emails...');
+                campaignRunning = true;
+                const allEmailSent = await sendEmails(campaign);
+                updateCampaign(campaign._id, {status: allEmailSent ? 'complete': 'failed'});
+                campaignRunning = false;
+            } catch(e) {
+                console.log('Error in sending emails :: ', e);
+                updateCampaign(campaign._id, {status: 'failed'});
+            }
+        } else {
+            console.log('No campaign found...');
         }
+
     }
 
     console.log('Cron server turning off :: ', new Date());
