@@ -2,16 +2,23 @@ const db = require("../models");
 const googleAuth = require('../lib/google-oauth');
 const Campaign = db.campaign;
 const { google } = require('googleapis');
+const {apiError} = require('../utils/apiError');
+const {apiResponse} = require('../utils/apiResponse');
 
 exports.createCampaign = async (req, res) => {
     const campaign = await Campaign.create(req.body);
 
     const oAuthUrls = googleAuth.getOAuthUrls(campaign.credentials);
 
-    res.status(200).send({
-        message: "Campaign Created!",
-        data: { id: campaign.id, oAuthUrls }
-    });
+    // res.status(200).send({
+    //     message: "Campaign Created!",
+    //     data: { id: campaign.id, oAuthUrls }
+    // });
+    res.status(200)
+    .json(new apiResponse(
+      200, { id: campaign.id, oAuthUrls }, 
+      "Campaign Created!")
+    );
 };
 
 
@@ -23,10 +30,10 @@ exports.updateCampaign = async (req, res) => {
       data['oAuthUrls'] = googleAuth.getOAuthUrls(campaign.credentials);
     }
 
-    res.status(200).send({
-        message: "Campaign Updated!",
-        data
-    });
+    res.status(200).json( new apiResponse(
+      200, data,
+      "Campaign Updated!",
+    ));
 };
 
 exports.getCampaignStatus = async (req, res) => {
@@ -36,18 +43,26 @@ exports.getCampaignStatus = async (req, res) => {
     emailSent: (campaign.recipients.filter(e => e.sent)).length,
     totalRecipients: campaign.recipients?.length,
   }
-  res.status(200).send({
-    message: "Success!",
-    data: status
-  });
+  // res.status(200).send({
+  //   message: "Success!",
+  //   data: status
+  // });
+  res.status(200).json(new apiResponse(
+    200, status,
+    "Success!"
+  ));
 };
 
 exports.getCampaign = async (req, res) => {
   const campaign = await Campaign.findById(req.params.id);
-  res.status(200).send({
-    message: "Success!",
-    data: campaign
-  });
+  // res.status(200).send({
+  //   message: "Success!",
+  //   data: campaign
+  // });
+  res.status(200).json(new apiResponse(
+    200, campaign,
+    "Success!"
+  ));
 };
 
 exports.getCampaignList = async (req, res) => {
@@ -62,14 +77,22 @@ exports.getCampaignList = async (req, res) => {
 
   const totalCampaigns = await Campaign.countDocuments({});
 
-  res.status(200).send({
-    message: "Success!",
-    data: {
+  // res.status(200).send({
+  //   message: "Success!",
+  //   data: {
+  //     totalCampaigns,
+  //     currentPage: page,
+  //     campaigns
+  //   }
+  // });
+  res.status(200).json(new apiResponse(
+    200, {
       totalCampaigns,
       currentPage: page,
       campaigns
-    }
-  });
+    },
+    "Success!"
+  ));
 };
 
 exports.googleAuth = async (req, res) => {
@@ -79,7 +102,8 @@ exports.googleAuth = async (req, res) => {
   const cred = campaign?.credentials.find(e => e.email == req.params.email);
   console.log('Cred :: ', cred)
   if(!cred) {
-    return res.json({message: 'Auth Failed'});
+    // return res.json({message: 'Auth Failed'});
+    throw new apiError(401, 'Auth Failed');
   }
 
   const oAuth2Client = new google.auth.OAuth2(
@@ -106,10 +130,12 @@ exports.googleAuth = async (req, res) => {
         { new: true }  // Return the updated document
       );
       console.log('Updated cred :: ', campaign.credentials);
-      return res.json({message: 'Success'});
+      // return res.json({message: 'Success'});
+      return res.json(new apiResponse(200, null, 'Success'));
     }catch(e) {
       console.log('Error :: ', e);
-      return res.json({message: 'Failed'});
+      // return res.json({message: 'Failed'});
+      throw new apiError(500, 'Failed');
     }
   });
 }

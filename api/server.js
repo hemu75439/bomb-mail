@@ -27,7 +27,7 @@ db.mongoose
     authSource: "admin"
   })
   .then(() => {
-    console.log("Successfully connect to MongoDB.");
+    console.log("Successfully connected to MongoDB.");
     initial();
   })
   .catch(err => {
@@ -38,7 +38,7 @@ db.mongoose
 
 // API calls logger
 app.use(morgan('tiny'));
-  
+
 // simple route
 app.get("/", (req, res) => {
   res.json({ message: "Application works!" });
