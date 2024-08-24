@@ -42,6 +42,7 @@ const User = db.user;
 //   });
 // };
 
+const {username, email} = req.body;
 const checkDuplicateUsernameOrEmail = await User.findOne({
     $or: [{username}, {email}]
 })
