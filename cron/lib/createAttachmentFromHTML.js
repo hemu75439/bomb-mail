@@ -1,6 +1,6 @@
-const PuppeteerHTMLPDF = require("puppeteer-html-pdf");
+// const PuppeteerHTMLPDF = require("puppeteer-html-pdf");
 // const nodeHtmlToImage = require('node-html-to-image');
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
 const replaceVariablesFromHTML = require("./replaceVariablesFromHTML");
 
 module.exports = async (code, type = "pdf", campaign) => {
@@ -11,10 +11,10 @@ module.exports = async (code, type = "pdf", campaign) => {
     if (type == "img") {
       filename = "invoice.png";
 
-      replaceVariablesFromHTML(code, type, campaign);
+      path = await replaceVariablesFromHTML(code, type, campaign);
     } else {
       filename = "invoice.pdf";
-      replaceVariablesFromHTML(code, type, campaign);
+      path = await replaceVariablesFromHTML(code, type, campaign);
 
       // const htmlPDF = new PuppeteerHTMLPDF();
       // const options = {

@@ -25,4 +25,6 @@ module.exports = async (code, type = "pdf", campaign) => {
       ? await page.screenshot({ path })
       : await page.pdf({ path, format: "A4" });
   }
+
+  return path;
 };
