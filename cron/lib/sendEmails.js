@@ -10,7 +10,7 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
     const {
       sender_name,
       random_sender_name,
-      subject,
+      subject,  
       body,
       interactive_body,
       html_code,

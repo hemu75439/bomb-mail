@@ -1,42 +1,31 @@
 const PuppeteerHTMLPDF = require("puppeteer-html-pdf");
 // const nodeHtmlToImage = require('node-html-to-image');
-const puppeteer = require('puppeteer');
+const puppeteer = require("puppeteer");
+const replaceVariablesFromHTML = require("./replaceVariablesFromHTML");
 
-module.exports = async (code, type='pdf') => {
-    let path = null;
-    let filename = null;
+module.exports = async (code, type = "pdf", campaign) => {
+  let path = null;
+  let filename = null;
 
-    try {
-        if(type == 'img') {
-            path = `${__dirname}/../file/${new Date().toISOString()}.png`;
-            filename = 'invoice.png'
-            const browser = await puppeteer.launch({
-                headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-              });
-            const page = await browser.newPage();
-            await page.setViewport({
-                height: 1200,
-                width: 800,
-                deviceScaleFactor: 1,
-            });            
-            await page.setContent(code);
-            await page.screenshot({path});
-            await browser.close();
-        } else {
-            path = `${__dirname}/../file/${new Date().toISOString()}.pdf`;
-            filename = 'invoice.pdf';
-            const htmlPDF = new PuppeteerHTMLPDF();
-            const options = {
-                format: "A4",
-                path
-            };
-            htmlPDF.setOptions(options);
-            await htmlPDF.create(code);
-        }
-    } catch (error) {
-        console.log("Error in creating attachment: ", error);
+  try {
+    if (type == "img") {
+      filename = "invoice.png";
+
+      replaceVariablesFromHTML(code, type, campaign);
+    } else {
+      filename = "invoice.pdf";
+      replaceVariablesFromHTML(code, type, campaign);
+
+      // const htmlPDF = new PuppeteerHTMLPDF();
+      // const options = {
+      //   format: "A4",
+      //   path,
+      // };
+      // htmlPDF.setOptions(options);
     }
-    
-    return [filename, path];
-}
+  } catch (error) {
+    console.log("Error in creating attachment: ", error);
+  }
+
+  return [filename, path];
+};
