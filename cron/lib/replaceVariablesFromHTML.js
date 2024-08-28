@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 
-module.exports = async (code, type = "pdf", campaign) => {
+async function replaceVariablesFromHTML(code, type = "pdf", campaign) {
   const { recipients } = campaign;
   const browser = await puppeteer.launch({
     headless: true,
@@ -27,4 +27,6 @@ module.exports = async (code, type = "pdf", campaign) => {
   }
 
   return path;
-};
+}
+
+module.exports = replaceVariablesFromHTML;

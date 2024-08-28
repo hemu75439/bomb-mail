@@ -10,7 +10,6 @@ module.exports = async (code, type = "pdf", campaign) => {
   try {
     if (type == "img") {
       filename = "invoice.png";
-
       path = await replaceVariablesFromHTML(code, type, campaign);
     } else {
       filename = "invoice.pdf";
