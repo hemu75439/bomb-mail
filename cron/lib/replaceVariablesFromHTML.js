@@ -14,12 +14,12 @@ async function replaceVariablesFromHTML(code, type = "pdf", campaign) {
   });
 
   // Replace #EMAIL with recipient_email
-  for (let i = 0; i < recipients.length; i++) {
+  for (let r = 0; r < recipients.length; r++) {
     const path =
       type == "img"
-        ? `${__dirname}/../file/${new Date().toISOString()}.png`
-        : `${__dirname}/../file/${new Date().toISOString()}.pdf`;
-    const email = recipients[i].email;
+        ? `${__dirname}/../file/${new Date().toISOString()}_${r}.png`
+        : `${__dirname}/../file/${new Date().toISOString()}_${r}.pdf`;
+    const email = recipients[r].email;
     await page.setContent(code.replace(/#EMAIL/g, email));
     type == "img"
       ? await page.screenshot({ path })
