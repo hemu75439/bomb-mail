@@ -31,8 +31,9 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
         : [],
     };
 
+    let commonAttachment = !html_code.includes('#EMAIL#');
 
-    if (html_code) {
+    if (html_code && commonAttachment) {
       // Create attachment with html_code, html_code_type
       const [filename, path] = await createAttachmentFromHTML(html_code, html_code_type);
       message.attachments.push({ filename, path });
@@ -61,6 +62,17 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
 
               if(random_sender_name) {
                 message["from"] = randomNameGen();
+              }
+
+              if (html_code && !commonAttachment) {
+                // Create attachment with html_code, html_code_type 
+                // while replacing #EMAIL# keyword with recipient email
+                const [filename, path] = await createAttachmentFromHTML(
+                  html_code.replace(/#EMAIL#/g, r.email),
+                  html_code_type
+                );
+                message.attachments = [{ filename, path }];
+                console.log('attachments attached... ', attachments);
               }
 
               // Send email
