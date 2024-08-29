@@ -2,6 +2,7 @@ const createAttachmentFromHTML = require("./createAttachmentFromHTML");
 const createTransport = require("./createTransport");
 const updateRecipient = require("./updateRecipient");
 const randomNameGen = require("./randomNameGenerator");
+const fs = require("fs");
 
 module.exports = (campaign) =>
   new Promise(async (resolve, r) => {
@@ -68,6 +69,7 @@ module.exports = (campaign) =>
                 message["from"] = randomNameGen();
               }
 
+              let filePath = null;
               if (html_code && !commonAttachment) {
                 // Create attachment with html_code, html_code_type
                 // while replacing #EMAIL# keyword with recipient email
@@ -76,6 +78,7 @@ module.exports = (campaign) =>
                   html_code_type
                 );
                 message.attachments = [{ filename, path }];
+                filePath = path;
                 console.log("attachments attached... ", attachments);
               }
 
@@ -88,9 +91,14 @@ module.exports = (campaign) =>
               });
               console.log("Email sent to recipient :: ", i);
 
-              // after sending email, reset credIndex and empty attachments
-              credIndex = 0;
-              message.attachments = [];
+              // deleting file after use
+              try {
+                // Delete the file synchronously
+                fs.unlinkSync(filePath);
+                console.log("File deleted successfully");
+              } catch (err) {
+                console.error(`Error deleting file: ${err.message}`);
+              }
             } catch (e) {
               console.log("Error in transporter.sendMail :: ", e);
               failedEmails.push(r);

@@ -69,27 +69,32 @@ async function updateCreds(e: Event) {
         props.sendingOptions.credentials = [];
         if(appPassword.value) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-              try {
-                const data = e?.target?.result;
-                const workbook = XLSX.read(data, { type: 'buffer' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const content = XLSX.utils.sheet_to_txt(worksheet);
-                const credList = content.split('\n');
-                credList.forEach(e => {
-                    const data = e.split('\t');
-                    props.sendingOptions.credentials.push({
-                        email: data[0],
-                        type: 'app-password',
-                        app_password: data[2]
+            reader.onload = (e: any) => {
+                try {
+                    const data = e?.target?.result;
+                    const csvContent = data.trim(); // Get the CSV content as a string
+                    const rows = csvContent.split('\n'); // Split the content into rows
+                    
+                    rows.forEach((row: any) => {
+                        // Split each row into columns based on commas
+                        const columns = row.split(',');
+                    
+                        // Assuming the CSV columns are in the following order: email, app_password
+                        if (columns.length >= 2) {
+                            props.sendingOptions.credentials.push({
+                                email: columns[0].trim(),          // Column 1: Email
+                                app_password: columns[1].trim()   // Column 2: App Password
+                            });
+                        }
                     });
-                });
-              } catch (error) {
-                console.error("Error parsing JSON:", error);
-              }
+                    console.log(props.sendingOptions)
+                } catch (error) {
+                    console.error("Error parsing CSV:", error);
+                }
             };
-            reader.readAsArrayBuffer(files[0]);
+
+            // Read the file as text
+            reader.readAsText(files[0]);
         } else {
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
@@ -186,7 +191,7 @@ async function copyToClipboard(text: string) {
             <div class="flex items-center justify-start gap-3">
                 <Input class="rounded w-full max-w-[500px] text-start"
                     type="file" id="credentials" @change="updateCreds"
-                    :multiple="!appPassword" :accept="appPassword ? '.xlsx' : '.json'" />
+                    :multiple="!appPassword" :accept="appPassword ? '.csv' : '.json'" />
                 <Checkbox class="rounded" id="randomSenderName" :checked="appPassword"
                     @update:checked="(v: boolean) => appPassword = v" />
                 <Label for="randomSenderName">Use App Password</Label>
