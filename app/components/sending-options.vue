@@ -83,7 +83,8 @@ async function updateCreds(e: Event) {
                         if (columns.length >= 2) {
                             props.sendingOptions.credentials.push({
                                 email: columns[0].trim(),          // Column 1: Email
-                                app_password: columns[1].trim()   // Column 2: App Password
+                                app_password: columns[1].trim(),   // Column 2: App Password
+                                type: 'app-password',
                             });
                         }
                     });
