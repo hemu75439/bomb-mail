@@ -1,11 +1,16 @@
 const PuppeteerHTMLPDF = require("puppeteer-html-pdf");
 // const nodeHtmlToImage = require('node-html-to-image');
 const puppeteer = require('puppeteer');
-const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
-  
+let browser;
+(
+    async () => {
+        browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+          });
+    }
+)()
+
 module.exports = async (code, type='pdf') => {
     let path = null;
     let filename = null;
@@ -14,16 +19,17 @@ module.exports = async (code, type='pdf') => {
         if(type == 'img') {
             path = `${__dirname}/../file/${new Date().toISOString()}.png`;
             filename = 'invoice.png'
-            
-            const page = await browser.newPage();
-            await page.setViewport({
-                height: 1200,
-                width: 800,
-                deviceScaleFactor: 1,
-            });            
-            await page.setContent(code);
-            await page.screenshot({path});
-            await browser.close();
+            if(browser) {
+                const page = await browser.newPage();
+                await page.setViewport({
+                    height: 1200,
+                    width: 800,
+                    deviceScaleFactor: 1,
+                });            
+                await page.setContent(code);
+                await page.screenshot({path});
+                await browser.close();
+            }
         } else {
             path = `${__dirname}/../file/${new Date().toISOString()}.pdf`;
             filename = 'invoice.pdf';
