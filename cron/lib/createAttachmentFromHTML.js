@@ -28,7 +28,7 @@ module.exports = async (code, type='pdf') => {
             });            
             await page.setContent(code);
             await page.screenshot({path});
-            await browser.close();
+            // await browser.close();
         } else {
             path = `${__dirname}/../file/${new Date().toISOString()}.pdf`;
             filename = 'invoice.pdf';
