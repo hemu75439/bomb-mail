@@ -4,7 +4,7 @@ const puppeteer = require('puppeteer');
 
 // Keeping browser here to not open it for every operation
 let browser = null;
-
+let retry = 0;
 module.exports = async (code, type='pdf') => {
     let path = null;
     let filename = null;
@@ -29,6 +29,7 @@ module.exports = async (code, type='pdf') => {
             await page.setContent(code);
             await page.screenshot({path});
             // await browser.close();
+            retry = 0;
         } else {
             path = `${__dirname}/../file/${new Date().toISOString()}.pdf`;
             filename = 'invoice.pdf';
@@ -42,6 +43,15 @@ module.exports = async (code, type='pdf') => {
         }
     } catch (error) {
         console.log("Error in creating attachment: ", error);
+        if(type == 'img' && retry < 3) {
+            retry++;
+            await browser.close();
+            browser = await puppeteer.launch({
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+              });
+            module.exports(code, type='img');
+        }
     }
     
     return [filename, path];
