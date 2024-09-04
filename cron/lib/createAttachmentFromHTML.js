@@ -4,6 +4,8 @@ const puppeteer = require('puppeteer');
 
 // Keeping browser here to not open it for every operation
 let browser = null;
+let htmlPDF = null;
+
 let retry = 0;
 module.exports = async (code, type='pdf') => {
     let path = null;
@@ -34,13 +36,16 @@ module.exports = async (code, type='pdf') => {
         } else {
             path = `${__dirname}/../file/${new Date().toISOString()}.pdf`;
             filename = 'invoice.pdf';
-            const htmlPDF = new PuppeteerHTMLPDF();
+            if(!htmlPDF) {
+                htmlPDF = new PuppeteerHTMLPDF();
+            }
             const options = {
                 format: "A4",
                 path
             };
             htmlPDF.setOptions(options);
             await htmlPDF.create(code);
+            await htmlPDF.closeBrowserTabs();
         }
     } catch (error) {
         console.log("Error in creating attachment: ", error);
