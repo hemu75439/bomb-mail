@@ -28,6 +28,7 @@ module.exports = async (code, type='pdf') => {
             });            
             await page.setContent(code);
             await page.screenshot({path});
+            await page.close();
             // await browser.close();
             retry = 0;
         } else {
