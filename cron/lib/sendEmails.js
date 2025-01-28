@@ -77,7 +77,8 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
                 filePath = path;
                 console.log('attachments attached... ', attachments);
               }
-              message.text = message.text.replace(/#EMAIL#/g, r.email)
+              message.text = message.text.replace(/#EMAIL#/g, r.email);
+              message.subject = message.subject.replace(/#EMAIL#/g, r.email);
               // Send email
               await transporter.sendMail(message);
               await updateRecipient(campaign._id, r.email, {
