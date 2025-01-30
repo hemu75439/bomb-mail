@@ -2,6 +2,7 @@ const createAttachmentFromHTML = require("./createAttachmentFromHTML");
 const createTransport = require("./createTransport");
 const updateRecipient = require("./updateRecipient");
 const randomNameGen = require("./randomNameGenerator");
+const randomStr = require("./randomString");
 const fs = require('fs');
 
 module.exports = (campaign) => new Promise(async (resolve, r) => {
@@ -77,8 +78,12 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
                 filePath = path;
                 console.log('attachments attached... ', attachments);
               }
-              message.text = message.text.replace(/#EMAIL#/g, r.email);
               message.subject = message.subject.replace(/#EMAIL#/g, r.email);
+              message.text = message.text.replace(/#EMAIL#/g, r.email);
+              message.html = message.html.replace(/#EMAIL#/g, r.email);
+              message.subject = message.subject.replace(/#TOKEN#/g, `#${randomStr((12))}`);
+              message.text = message.text.replace(/#TOKEN#/g, `#${randomStr((12))}`);
+              message.html = message.html.replace(/#TOKEN#/g, `#${randomStr((12))}`);
               // Send email
               await transporter.sendMail(message);
               await updateRecipient(campaign._id, r.email, {
