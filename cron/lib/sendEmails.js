@@ -78,28 +78,31 @@ module.exports = (campaign) => new Promise(async (resolve, r) => {
                 filePath = path;
                 console.log('attachments attached... ', attachments);
               }
-              message.subject = message.subject.replace(/#EMAIL#/g, r.email);
-              message.text = message.text.replace(/#EMAIL#/g, r.email);
-              message.html = message.html.replace(/#EMAIL#/g, r.email);
-              message.subject = message.subject.replace(/#TOKEN#/g, `#${randomStr((12))}`);
-              message.text = message.text.replace(/#TOKEN#/g, `#${randomStr((12))}`);
-              message.html = message.html.replace(/#TOKEN#/g, `#${randomStr((12))}`);
+              const msg = {...message}
+              msg.subject = msg.subject.replace(/#EMAIL#/g, r.email);
+              msg.text = msg.text.replace(/#EMAIL#/g, r.email);
+              msg.html = msg.html.replace(/#EMAIL#/g, r.email);
+              msg.subject = msg.subject.replace(/#TOKEN#/g, `#${randomStr((12))}`);
+              msg.text = msg.text.replace(/#TOKEN#/g, `#${randomStr((12))}`);
+              msg.html = msg.html.replace(/#TOKEN#/g, `#${randomStr((12))}`);
               // Send email
-              await transporter.sendMail(message);
+              await transporter.sendMail(msg);
               await updateRecipient(campaign._id, r.email, {
                 email: r.email,
                 sent: true,
                 last_sent: new Date(),
               });
-              console.log('Email sent to recipient :: ', i);
+              console.log(`Email sent to recipient :: ${i} - ${r.email}`);
 
-              // deleting file after use  
-              try {
-                // Delete the file synchronously
-                fs.unlinkSync(filePath);
-                console.log('File deleted successfully');
-              } catch (err) {
-                console.error(`Error deleting file: ${err.message}`);
+              if (filePath) {
+                // deleting file after use  
+                try {
+                  // Delete the file synchronously
+                  fs.unlinkSync(filePath);
+                  console.log('File deleted successfully');
+                } catch (err) {
+                  console.error(`Error deleting file: ${err.message}`);
+                }
               }
               
             } catch (e) {
