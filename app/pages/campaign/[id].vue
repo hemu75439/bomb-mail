@@ -77,6 +77,7 @@ async function modifyCampaign() {
     }
 }
 
+const firstCompleteStatus = true;
 async function checkCampaignStatus() {
     const response: any = await $fetch(apiBase + 'campaign/' + route.params.id + '/status');
     console.log(response)
@@ -88,6 +89,12 @@ async function checkCampaignStatus() {
     if(response.data.status == 'complete') {
         emailSent.value = response.data.emailSent;
         totalRecipients.value = response.data.totalRecipients;
+        
+        // (Experimental) Fetching status one more time to get total number of sent recipients
+        if(firstCompleteStatus) {
+            firstCompleteStatus = false;
+            statusCheckTimeout = setTimeout(() => checkCampaignStatus(), 5000);
+        }
     }
     status.value = response.data.status;
 }
