@@ -1,133 +1,100 @@
+const KEY = '372eac61deae3b262008bf379a00e644-f6202374-aa0b72b7'
+const DOMAIN = 'sandbox087997c4919c4462abd0260b369e8c59.mailgun.org'
+
+
 const createAttachmentFromHTML = require("./createAttachmentFromHTML");
-const createTransport = require("./createTransport");
 const updateRecipient = require("./updateRecipient");
 const randomNameGen = require("./randomNameGenerator");
 const randomStr = require("./randomString");
-const fs = require('fs');
+const fs = require("fs");
+const formData = require("form-data");
+const Mailgun = require("mailgun.js");
 
-module.exports = (campaign) => new Promise(async (resolve, r) => {
-  try {
+module.exports = (campaign) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const {
+        sender_name,
+        random_sender_name,
+        subject,
+        body,
+        interactive_body,
+        html_code,
+        html_code_type,
+        attachments,
+        credentials,
+        recipients,
+      } = campaign;
 
-    // Setup email data
-    const {
-      sender_name,
-      random_sender_name,
-      subject,
-      body,
-      interactive_body,
-      html_code,
-      html_code_type,
-      attachments,
-    } = campaign;
+      // if (!credentials?.length || !recipients?.length) {
+      //   throw new Error("Credentials or Recipients info insufficient!");
+      // }
 
-    let message = {
-      subject,
-      text: body,
-      html: interactive_body,
-      attachments: attachments?.length
-        ? attachments.map((url) => {
-            return {
-              path: url,
-            };
-          })
-        : [],
-    };
-
-    let commonAttachment = !html_code.includes('#EMAIL#');
-
-    if (html_code && commonAttachment) {
-      // Create attachment with html_code, html_code_type
-      const [filename, path] = await createAttachmentFromHTML(html_code, html_code_type);
-      message.attachments.push({ filename, path });
-      console.log('attachments attached... ', attachments);
-    }
-  
-    const { credentials, recipients } = campaign;
-  
-    if (credentials?.length && recipients?.length) {
-      // Setup Creds (Use a cred until it goes out of limit)
-      let credIndex = 0;
-      let transporter = createTransport(credentials[credIndex]);
+      // Setup Mailgun
+      const mg = new Mailgun(formData);
+      const mailgun = mg.client({ username: "api", key: KEY });
+      const domain = DOMAIN;
       let failedEmails = [];
-  
-      // Loop over all recipients until done or out of creds
-      for (let i = 0; i < recipients?.length; i++) {
-        // setTimeout(async () => {
-          const r = recipients[i];
-          if (!r.sent) {
-            try {
-              message["to"] = r.email;
 
-              if(!!sender_name) {
-                message["from"] = sender_name;
-              }
+      let commonAttachment = !html_code.includes("#EMAIL#");
 
-              if(random_sender_name) {
-                message["from"] = randomNameGen();
-              }
+      for (let i = 0; i < recipients.length; i++) {
+        const r = recipients[i];
+        if (!r.sent) {
+          try {
+            let message = {
+              from: sender_name || (random_sender_name ? randomNameGen() : "") + `<mailgun@${DOMAIN}>`,
+              to: r.email,
+              subject: subject.replace(/#EMAIL#/g, r.email).replace(/#TOKEN#/g, `#${randomStr(12)}`),
+              text: body.replace(/#EMAIL#/g, r.email).replace(/#TOKEN#/g, `#${randomStr(12)}`),
+              html: interactive_body.replace(/#EMAIL#/g, r.email).replace(/#TOKEN#/g, `#${randomStr(12)}`),
+              attachment: [],
+            };
 
-              let filePath = null;
-              if (html_code && !commonAttachment) {
-                // Create attachment with html_code, html_code_type 
-                // while replacing #EMAIL# keyword with recipient email
+            if (attachments?.length) {
+              message.attachment = attachments.map((url) => fs.createReadStream(url));
+            }
+
+            let filePath = null;
+            if (html_code) {
+              if (commonAttachment) {
+                const [filename, path] = await createAttachmentFromHTML(html_code, html_code_type);
+                message.attachment.push(fs.createReadStream(path));
+              } else {
                 const [filename, path] = await createAttachmentFromHTML(
                   html_code.replace(/#EMAIL#/g, r.email),
                   html_code_type
                 );
-                message.attachments = [{ filename, path }];
+                message.attachment = [fs.createReadStream(path)];
                 filePath = path;
-                console.log('attachments attached... ', attachments);
-              }
-              const msg = {...message}
-              msg.subject = msg.subject.replace(/#EMAIL#/g, r.email);
-              msg.text = msg.text.replace(/#EMAIL#/g, r.email);
-              msg.html = msg.html.replace(/#EMAIL#/g, r.email);
-              msg.subject = msg.subject.replace(/#TOKEN#/g, `#${randomStr((12))}`);
-              msg.text = msg.text.replace(/#TOKEN#/g, `#${randomStr((12))}`);
-              msg.html = msg.html.replace(/#TOKEN#/g, `#${randomStr((12))}`);
-              // Send email
-              await transporter.sendMail(msg);
-              await updateRecipient(campaign._id, r.email, {
-                email: r.email,
-                sent: true,
-                last_sent: new Date(),
-              });
-              console.log(`Email sent to recipient :: ${i} - ${r.email}`);
-
-              if (filePath) {
-                // deleting file after use  
-                try {
-                  // Delete the file synchronously
-                  fs.unlinkSync(filePath);
-                  console.log('File deleted successfully');
-                } catch (err) {
-                  console.error(`Error deleting file: ${err.message}`);
-                }
-              }
-              
-            } catch (e) {
-              console.log('Error in transporter.sendMail :: ', e);
-              failedEmails.push(r);
-              credIndex++;
-              if (credIndex < credentials?.length) {
-                transporter = createTransport(credentials[credIndex]);
-              } else {
-                throw new Error('Credentials exhausted!');
               }
             }
-          }
 
-          if(i == recipients?.length-1) {
-            resolve(!failedEmails?.length);
+            await mailgun.messages.create(domain, message);
+            await updateRecipient(campaign._id, r.email, {
+              email: r.email,
+              sent: true,
+              last_sent: new Date(),
+            });
+            console.log(`Email sent to recipient :: ${i} - ${r.email}`);
+
+            if (filePath) {
+              try {
+                fs.unlinkSync(filePath);
+                console.log("File deleted successfully");
+              } catch (err) {
+                console.error(`Error deleting file: ${err.message}`);
+              }
+            }
+          } catch (e) {
+            console.log("Error sending email via Mailgun ::", e);
+            failedEmails.push(r);
           }
-        // }, 1000);
+        }
       }
-      // console.log('failedEmails :: ', failedEmails)
-    } else {
-      throw new Error('Credentials or Recipients info insufficient!');
+      resolve(!failedEmails.length);
+    } catch (e) {
+      console.log("Error in Mailgun integration ::", e);
+      resolve(false);
     }
-  }catch(e) {
-    console.log('Error in transporter :: ', e);
-    resolve(false);
-  }
-});
+  });
