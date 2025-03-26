@@ -17,6 +17,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
     "puppeteer": "^23.0.2",
-    "puppeteer-html-pdf": "^4.0.8"
+    "puppeteer-html-pdf": "^4.0.8",
+    "mailgun.js": "^12.0.1"
   }
 }
