@@ -182,6 +182,31 @@ async function cancelCampaign() {
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
+
+                    <Accordion type="single" class="px-2" collapsible>
+                        <AccordionItem value="item-1">
+                            <AccordionTrigger>
+                                <span class="flex items-center justify-start gap-3">
+                                    Attachments
+        
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger as-child>
+                                                <Info class="outline-none" :size="20" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>URLs for attachments.</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <Attachment :attachments="campaign.attachments" />
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+
                 </div>
 
                 <div class="flex items-center justify-between px-4 py-2 border-t">
